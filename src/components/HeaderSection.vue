@@ -8,7 +8,7 @@ const busq = inject<any>('busq')
 
 <header class="hd">
 
-<h1>🎮 GameHub</h1>
+<h1> GameHub</h1>
 
 <input
 v-model="busq"

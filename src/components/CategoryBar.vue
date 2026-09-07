@@ -10,11 +10,11 @@ const cat = inject<any>('cat')
 
 <button @click="cat='Todos'">Todos</button>
 
-<button @click="cat='Sandbox'">🌿 Sandbox</button>
+<button @click="cat='Sandbox'"> Sandbox</button>
 
-<button @click="cat='Terror'">👻 Terror</button>
+<button @click="cat='Terror'"> Terror</button>
 
-<button @click="cat='Battle'">⚔️ Battle</button>
+<button @click="cat='Battle'"> Battle</button>
 
 </section>
 
