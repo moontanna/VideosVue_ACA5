@@ -19,7 +19,7 @@ const ver = inject<any>('ver')
 
 <a :href="sel.roblox" target="_blank" class="play">
 
-Play
+> Jugar en Roblox
 
 </a>
 
