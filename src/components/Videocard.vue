@@ -1,52 +1,36 @@
 <script setup lang="ts">
-import { inject } from 'vue'
+import type { Game } from '../data/games'
 
-const sel = inject<any>('sel')
-
-function seleccionar(){
-  sel.value = props.jg
-}
-
-const props = withDefaults(defineProps<{
-  jg?: {
-    imagen?: string
-    titulo?: string
-    categoria?: string
-    descripcion?: string
-  }
-}>(), {
-  jg: () => ({})
-})
+const props = defineProps<{ jg: Game }>()
 </script>
 
 <template>
-
-<div class="card" @click="seleccionar">
-
-<img :src="props.jg?.imagen">
-
-<div class="info">
-
-<h3>{{ props.jg?.titulo }}</h3>
-
-<p>{{ props.jg?.categoria }}</p>
-
-<p>{{ props.jg?.descripcion }}</p>
-
-</div>
-
-</div>
-
+  <RouterLink class="card-link" :to="{ name: 'game', params: { id: props.jg.id } }">
+    <div class="card">
+      <img :src="props.jg.imagen" :alt="props.jg.titulo">
+      <div class="info">
+        <h3>{{ props.jg.titulo }}</h3>
+        <p>{{ props.jg.categoria }}</p>
+        <p>{{ props.jg.descripcion }}</p>
+      </div>
+    </div>
+  </RouterLink>
 </template>
 
 <style scoped>
-.card{
-background:white;
-border-radius:18px;
-overflow:hidden;
-cursor:pointer;
+.card-link {
+  color: inherit;
+  text-decoration: none;
 }
-img{
+
+.card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+img {
   width:100%;
   height:130px;
   display:block;
