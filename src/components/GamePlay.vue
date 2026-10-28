@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Game } from '../data/games'
+
+interface Game {
+  id: number
+  titulo: string
+  youtube: string
+  roblox: string
+  personajes: string
+  descripcion: string
+}
 
 defineProps<{ jg: Game }>()
 const ver = ref(false)

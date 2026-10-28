@@ -7,6 +7,21 @@ const router = useRouter()
 const searchText = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const menuOpen = ref(false)
 
+watch(
+  () => route.query.q,
+  (query) => {
+    searchText.value = typeof query === 'string' ? query : ''
+  },
+)
+
+function search() {
+  const query = searchText.value.trim()
+  menuOpen.value = false
+  router.push({
+    name: 'home',
+    query: query ? { q: query } : {},
+  })
+}
 
 </script>
 
@@ -16,7 +31,7 @@ const menuOpen = ref(false)
       <span class="brand-icon" aria-hidden="true">
 
       </span>
-      <span class="brand-name">Watch Note</span>
+      <span class="brand-name">juegos?</span>
     </RouterLink>
 
     <button
@@ -54,11 +69,29 @@ const menuOpen = ref(false)
         </RouterLink>
         <RouterLink
           class="nav-link support-link"
-          :to="{ name: 'support' }"
-          @click="menuOpen = false"
+          :to="{ name: 'soporte' }" @click="menuOpen = false"
         >
+
           Soporte
         </RouterLink>
+
+        <RouterLink class="nav-link" :to="{ name: 'eventos' }" @click="menuOpen = false">
+          Eventos
+        </RouterLink>
+        
+        <RouterLink
+          class="nav-link account-link"
+          :to="{ name: 'cuenta' }"
+          aria-label="Cuenta"
+          title="Cuenta"
+          @click="menuOpen = false"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
+          </svg>
+        </RouterLink>
+
       </nav>
     </div>
   </header>
@@ -197,6 +230,25 @@ const menuOpen = ref(false)
   background: #ff70ad;
 }
 
+.account-link {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #383846;
+  border-radius: 50%;
+}
+
+.account-link svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 @media (max-width: 680px) {
   .navbar {
     grid-template-columns: 1fr auto;
@@ -251,6 +303,11 @@ const menuOpen = ref(false)
 
   .nav-link {
     display: block;
+  }
+
+  .account-link {
+    display: grid;
+    align-self: flex-start;
   }
 
   .navbar-menu .search {
