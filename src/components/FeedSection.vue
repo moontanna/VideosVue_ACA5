@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Videocard from './Videocard.vue'
+import Videocard from './Viiiideocard.vue'
 import { videos } from '../data/games'
 
 </script>
