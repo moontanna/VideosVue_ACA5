@@ -142,9 +142,11 @@ const onMessage = (text: string) => {
 .chat-welcome h1 {
   margin: 16px 0 4px;
   color: #f2f3f5;
-  font-size: 20px;
+  font-family: var(--heading);
+  font-size: var(--heading-lg);
   font-weight: 700;
   letter-spacing: 0;
+  line-height: 1.2;
 }
 
 .chat-welcome p {

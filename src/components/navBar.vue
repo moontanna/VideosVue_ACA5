@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 const searchText = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const menuOpen = ref(false)
+const profileMenuOpen = ref(false)
 
 watch(
   () => route.query.q,
@@ -22,6 +23,34 @@ function search() {
     query: query ? { q: query } : {},
   })
 }
+
+function closeProfileMenu() {
+  profileMenuOpen.value = false
+}
+
+function handleDocumentClick(event: MouseEvent) {
+  const target = event.target as HTMLElement
+
+  if (!target.closest('.profile-menu')) {
+    closeProfileMenu()
+  }
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    closeProfileMenu()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick)
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
+  document.removeEventListener('keydown', handleKeydown)
+})
 
 </script>
 
@@ -67,30 +96,59 @@ function search() {
         <RouterLink class="nav-link" :to="{ name: 'home' }" @click="menuOpen = false">
           Inicio
         </RouterLink>
-        <RouterLink
-          class="nav-link support-link"
-          :to="{ name: 'soporte' }" @click="menuOpen = false"
-        >
-
-          Soporte
-        </RouterLink>
-
         <RouterLink class="nav-link" :to="{ name: 'eventos' }" @click="menuOpen = false">
           Eventos
         </RouterLink>
         
-        <RouterLink
-          class="nav-link account-link"
-          :to="{ name: 'cuenta' }"
-          aria-label="Cuenta"
-          title="Cuenta"
-          @click="menuOpen = false"
-        >
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="8" r="3.5" />
-            <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
-          </svg>
-        </RouterLink>
+        <div class="profile-menu" @click.stop>
+          <button
+            class="profile-trigger"
+            type="button"
+            :aria-expanded="profileMenuOpen"
+            aria-controls="profile-dropdown"
+            aria-label="Abrir menú de perfil"
+            title="Perfil"
+            @click="profileMenuOpen = !profileMenuOpen"
+          >
+            <span class="profile-avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
+              </svg>
+            </span>
+          </button>
+
+          <div v-if="profileMenuOpen" id="profile-dropdown" class="profile-dropdown">
+            <div class="profile-summary">
+              <span class="profile-avatar profile-avatar-large" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="3.5" />
+                  <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
+                </svg>
+              </span>
+              <strong>m00nmi</strong>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <nav class="profile-links" aria-label="Opciones de perfil">
+              <RouterLink class="profile-link" :to="{ name: 'cuenta' }" @click="closeProfileMenu">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="9" cy="8" r="3" />
+                  <path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 8v8m4-4h-8" />
+                </svg>
+                <span>Mi cuenta</span>
+              </RouterLink>
+              <RouterLink class="profile-link membership-link" :to="{ name: 'cuenta' }" @click="closeProfileMenu">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="m12 3 7 3v5c0 4.5-2.9 7.8-7 10-4.1-2.2-7-5.5-7-10V6l7-3Z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+                <span>Membresías</span>
+              </RouterLink>
+            </nav>
+          </div>
+        </div>
 
       </nav>
     </div>
@@ -220,33 +278,141 @@ function search() {
   background: #71e2ff;
 }
 
-.support-link {
-  color: #ffb8d5;
+.profile-menu {
+position: relative;
 }
 
-.support-link:hover,
-.support-link.router-link-active {
-  color: #17111a;
-  background: #ff70ad;
+.profile-trigger {
+display: grid;
+width: 40px;
+height: 40px;
+place-items: center;
+padding: 0;
+color: #f5f4fb;
+background: #8d05c9;
+border: 1px solid #b43ce8;
+border-radius: 50%;
+cursor: pointer;
+transition: background-color 150ms ease, transform 150ms ease;
 }
 
-.account-link {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid #383846;
-  border-radius: 50%;
+.profile-trigger:hover,
+.profile-trigger[aria-expanded='true'] {
+background: #a917e0;
+transform: translateY(-1px);
 }
 
-.account-link svg {
-  width: 22px;
-  height: 22px;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
+.profile-avatar {
+display: grid;
+width: 30px;
+height: 30px;
+place-items: center;
+color: currentColor;
+background: transparent;
+border-radius: 50%;
+}
+
+.profile-avatar svg {
+width: 24px;
+height: 24px;
+stroke: currentColor;
+stroke-linecap: round;
+stroke-linejoin: round;
+stroke-width: 1.8;
+}
+
+.profile-dropdown {
+position: absolute;
+top: calc(100% + 10px);
+right: 0;
+z-index: 30;
+width: 300px;
+padding: 16px;
+color: #f5f4fb;
+background: #303039;
+border: 1px solid #383846;
+border-radius: 8px;
+box-shadow: 0 12px 28px rgba(7, 8, 20, 0.45);
+text-align: left;
+}
+
+.profile-summary {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 0 0 14px;
+}
+
+.profile-summary strong {
+font-size: 16px;
+}
+
+.profile-avatar-large {
+width: 48px;
+height: 48px;
+color: #fff;
+background: #8d05c9;
+}
+
+.profile-avatar-large svg {
+width: 31px;
+height: 31px;
+}
+
+.profile-divider {
+height: 1px;
+margin-bottom: 8px;
+background: #484852;
+}
+
+.profile-links {
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+
+.profile-link {
+display: flex;
+align-items: center;
+gap: 12px;
+min-height: 40px;
+padding: 6px 8px;
+color: #f1eff7;
+border-radius: 5px;
+font-size: 15px;
+text-decoration: none;
+transition: background-color 150ms ease, color 150ms ease;
+}
+
+.profile-link:hover,
+.profile-link.router-link-active {
+color: #fff;
+background: #454550;
+}
+
+.profile-link svg {
+width: 20px;
+height: 20px;
+flex: 0 0 20px;
+stroke: currentColor;
+stroke-linecap: round;
+stroke-linejoin: round;
+stroke-width: 1.8;
+}
+
+.membership-link {
+color: #e69bff;
+}
+
+.membership-link:hover,
+.membership-link.router-link-active {
+color: #f3c9ff;
+}
+
+.profile-trigger:focus-visible,
+.profile-link:focus-visible {
+outline: 2px solid #71e2ff;
+outline-offset: 2px;
 }
 
 @media (max-width: 680px) {
@@ -305,9 +471,13 @@ function search() {
     display: block;
   }
 
-  .account-link {
-    display: grid;
+  .profile-menu {
     align-self: flex-start;
+  }
+
+  .profile-dropdown {
+    right: auto;
+    left: 0;
   }
 
   .navbar-menu .search {

@@ -29,7 +29,10 @@
 
 .logo h1{
   margin:0;
-  font-size:28px;
+  font-family:var(--heading);
+  font-size:var(--heading-lg);
+  font-weight:700;
+  line-height:1.15;
   color:#1f2937;
 }
 

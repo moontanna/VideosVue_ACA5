@@ -1,7 +1,31 @@
 <script setup lang="ts">
-import Videocard from './Viiiideocard.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import Videocard from './Videocard.vue'
 import { videos } from '../data/games'
 
+const route = useRoute()
+const searchQuery = computed(() => {
+  const query = route.query.q
+  return typeof query === 'string' ? query.trim().toLowerCase() : ''
+})
+
+const visibleVideos = computed(() => {
+  if (searchQuery.value) {
+    return videos.filter((video) => {
+      const searchableText = [video.titulo, video.creador, video.juego, video.categoria]
+        .join(' ')
+        .toLowerCase()
+
+      return searchableText.includes(searchQuery.value)
+    })
+  }
+
+  // Mezclamos todos los videos al azar y seleccionamos solo la mitad.
+  const shuffled = [...videos].sort(() => Math.random() - 0.5)
+  const mitad = Math.ceil(shuffled.length / 2)
+  return shuffled.slice(0, mitad)
+})
 </script>
 
 <template>
@@ -9,14 +33,14 @@ import { videos } from '../data/games'
     <header class="feed-heading">
       <div>
         <p class="eyebrow">PARA TI</p>
-        <h1>Videos recomendados</h1>
+        <h1>{{ searchQuery ? `Resultados para "${searchQuery}"` : 'Videos recomendados' }}</h1>
       </div>
-      <span class="video-count">{{ videos.length }} videos</span>
     </header>
 
-    <section class="video-grid" aria-label="Videos recomendados">
-      <Videocard v-for="video in videos" :key="video.id" :video="video" />
+    <section v-if="visibleVideos.length" class="video-grid" aria-label="Videos recomendados">
+      <Videocard v-for="video in visibleVideos" :key="video.id" :video="video" />
     </section>
+    <p v-else class="empty-state">No encontramos videos que coincidan con tu búsqueda.</p>
   </main>
 </template>
 
@@ -47,25 +71,24 @@ import { videos } from '../data/games'
 .feed-heading h1 {
   margin: 0;
   color: #f5f4fb;
-  font-size: clamp(25px, 4vw, 34px);
-  font-weight: 750;
-  letter-spacing: -0.8px;
-}
-
-.video-count {
-  padding: 7px 12px;
-  color: #cbc9d7;
-  background: #20202b;
-  border: 1px solid #383846;
-  border-radius: 20px;
-  font-size: 12px;
-  white-space: nowrap;
+  font-size: var(--heading-xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .video-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
   gap: 32px 20px;
+}
+
+.empty-state {
+  padding: 28px;
+  color: #cbc9d7;
+  background: #20202b;
+  border: 1px solid #383846;
+  border-radius: 15px;
+  text-align: center;
 }
 
 @media (max-width: 600px) {

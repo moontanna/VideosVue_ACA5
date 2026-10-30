@@ -19,7 +19,7 @@ const routes = [
   { path: '/navbar', name: 'navbar', component: navbar },
   { path: '/feedsection', name: 'feedsection', component: feedsection },
   { path: '/gameplay', name: 'gameplay', component: GamePlay },
-  { path: '/videocard', name: 'videocard', component: videocard },
+  { path: '/videocard/:id', name: 'videocard', component: videocard },
   { path: '/:pathMatch(.*)*', redirect: '/soporte' },
 ]
 
