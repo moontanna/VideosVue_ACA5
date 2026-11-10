@@ -74,7 +74,7 @@ const onMessage = (text: string) => {
   min-height: calc(100vh - 68px);
   color: #dbdee1;
   background: #313338;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--sans);
   text-align: left;
 }
 

@@ -7,6 +7,25 @@ const router = useRouter()
 const searchText = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const menuOpen = ref(false)
 const profileMenuOpen = ref(false)
+const isLoggedIn = ref(false)
+const profileName = ref('Iniciar sesión')
+
+function updateProfileName() {
+  isLoggedIn.value = localStorage.getItem('cuenta-iniciada') === 'true'
+  const savedData = localStorage.getItem('datos-cuenta')
+
+  if (!isLoggedIn.value || !savedData) {
+    profileName.value = 'Iniciar sesión'
+    return
+  }
+
+  try {
+    const data = JSON.parse(savedData) as { nombre?: string }
+    profileName.value = data.nombre?.trim() || 'Iniciar sesión'
+  } catch {
+    profileName.value = 'Iniciar sesión'
+  }
+}
 
 watch(
   () => route.query.q,
@@ -43,31 +62,32 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 onMounted(() => {
+  updateProfileName()
   document.addEventListener('click', handleDocumentClick)
   document.addEventListener('keydown', handleKeydown)
+  window.addEventListener('cuenta-actualizada', updateProfileName)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('cuenta-actualizada', updateProfileName)
 })
 
 </script>
 
 <template>
   <header class="navbar">
-    <RouterLink class="brand" :to="{ name: 'home' }" aria-label="Watch Note, inicio">
-      <span class="brand-icon" aria-hidden="true">
-
-      </span>
-      <span class="brand-name">juegos?</span>
+    <RouterLink class="brand" :to="{ name: 'home' }" aria-label="pagina, inicio">
+      <img class="brand-logo" src="/logoPI_TW.png" alt="Logo de Juegos">
+      <span class="brand-name">Orbital</span>
     </RouterLink>
 
     <button
       class="menu-toggle"
       type="button"
       :aria-expanded="menuOpen"
-      aria-controls="navbar-menu"
+      aria-controls="sidebar-menu"
       :aria-label="menuOpen ? 'Cerrar menú' : 'Abrir menú'"
       @click="menuOpen = !menuOpen"
     >
@@ -93,13 +113,6 @@ onBeforeUnmount(() => {
       </form>
 
       <nav aria-label="Navegación principal">
-        <RouterLink class="nav-link" :to="{ name: 'home' }" @click="menuOpen = false">
-          Inicio
-        </RouterLink>
-        <RouterLink class="nav-link" :to="{ name: 'eventos' }" @click="menuOpen = false">
-          Eventos
-        </RouterLink>
-        
         <div class="profile-menu" @click.stop>
           <button
             class="profile-trigger"
@@ -126,25 +139,18 @@ onBeforeUnmount(() => {
                   <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
                 </svg>
               </span>
-              <strong>m00nmi</strong>
+              <strong>{{ profileName }}</strong>
             </div>
 
             <div class="profile-divider"></div>
 
             <nav class="profile-links" aria-label="Opciones de perfil">
-              <RouterLink class="profile-link" :to="{ name: 'cuenta' }" @click="closeProfileMenu">
+              <RouterLink v-if="!isLoggedIn" class="profile-link" :to="{ name: 'cuenta' }" @click="closeProfileMenu">
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <circle cx="9" cy="8" r="3" />
                   <path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 8v8m4-4h-8" />
                 </svg>
-                <span>Mi cuenta</span>
-              </RouterLink>
-              <RouterLink class="profile-link membership-link" :to="{ name: 'cuenta' }" @click="closeProfileMenu">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="m12 3 7 3v5c0 4.5-2.9 7.8-7 10-4.1-2.2-7-5.5-7-10V6l7-3Z" />
-                  <path d="m9 12 2 2 4-4" />
-                </svg>
-                <span>Membresías</span>
+                <span>Iniciar sesión</span>
               </RouterLink>
             </nav>
           </div>
@@ -153,6 +159,34 @@ onBeforeUnmount(() => {
       </nav>
     </div>
   </header>
+
+  <aside id="sidebar-menu" class="sidebar" :class="{ 'is-open': menuOpen }">
+    <nav aria-label="Navegación principal">
+      <RouterLink class="sidebar-link" :to="{ name: 'home' }" @click="menuOpen = false">
+        Inicio
+        <img src="https://imgs.search.brave.com/TtOgAKxJQT2KnUK9vbA59Rzvh_50FmUxZdY8lC3fyt0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNDYv/ODQxLzgzMC9zbWFs/bC9ob21lLWljb24t/dHJhbnNwYXJlbnQt/ZnJlZS1wbmcucG5n">
+      </RouterLink>
+      <RouterLink class="sidebar-link" :to="{ name: 'eventos' }" @click="menuOpen = false">
+        Eventos
+        <img src="https://imgs.search.brave.com/NQFKs3KGw4PHFrRKE_rcQ1YP1uYXBMGmABLeKuztBUU/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9jZG4t/aWNvbnMtcG5nLm1h/Z25pZmljLmNvbS8y/NTYvMTc0NTAvMTc0/NTAyNTcucG5nP3Nl/bXQ9YWlzX3doaXRl/X2xhYmVs">
+      </RouterLink>
+      <RouterLink class="sidebar-link" :to="{ name: 'membresia' }" @click="menuOpen = false">
+        Membresías
+        <img src="https://imgs.search.brave.com/A73BV-pYQycPcqZ5zQdN-PjvCA1rirBh9b3nY-xbOQg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4t/aWNvbnMtcG5nLmZs/YXRpY29uLmNvbS8x/MjgvOTQwNi85NDA2/MTg1LnBuZw" alt="Membresía" />
+      </RouterLink>
+      <RouterLink class="sidebar-link" :to="{ name: 'tienda' }" @click="menuOpen = false">
+        Tienda
+        <img src="https://imgs.search.brave.com/00UQUaPriu9aHwJZjTRPQc7_xWvttGhD2IKbmFjPf4I/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL2ZyZWUv/cG5nLTI1Ni9mcmVl/LXN0b3JlLWljb24t/c3ZnLWRvd25sb2Fk/LXBuZy0xNzcyNDU3/LnBuZz9mPXdlYnAm/dz0xMjg" alt="Tienda" />
+      </RouterLink>
+    </nav>
+  </aside>
+  <button
+    v-if="menuOpen"
+    class="sidebar-backdrop"
+    type="button"
+    aria-label="Cerrar menú"
+    @click="menuOpen = false"
+  ></button>
 </template>
 
 <style scoped>
@@ -175,6 +209,58 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 20px rgba(7, 8, 20, 0.24);
 }
 
+.sidebar {
+  position: fixed;
+  top: 68px;
+  left: 0;
+  z-index: 9;
+  width: 240px;
+  min-height: calc(100vh - 68px);
+  box-sizing: border-box;
+  padding: 24px 14px;
+  background: #11111a;
+  border-right: 1px solid rgba(102, 222, 255, 0.24);
+  box-shadow: 4px 0 20px rgba(7, 8, 20, 0.24);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 12px 16px;
+  color: #e5e3ef;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 650;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.sidebar-link img {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  object-fit: contain;
+}
+
+.sidebar-link:hover,
+.sidebar-link.router-link-active {
+  color: #11111a;
+  background: #71e2ff;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -185,7 +271,11 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
 
 .brand-name {
   font-size: 18px;
@@ -326,7 +416,7 @@ position: absolute;
 top: calc(100% + 10px);
 right: 0;
 z-index: 30;
-width: 300px;
+width: 230px;
 padding: 16px;
 color: #f5f4fb;
 background: #303039;
@@ -422,8 +512,35 @@ outline-offset: 2px;
     padding: 10px 14px;
   }
 
+  .sidebar {
+    top: 128px;
+    width: min(260px, 85vw);
+    min-height: calc(100vh - 128px);
+    transform: translateX(-100%);
+    transition: transform 150ms ease;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 128px 0 0;
+    z-index: 8;
+    display: block;
+    padding: 0;
+    background: rgba(7, 8, 20, 0.55);
+    border: 0;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+
   .brand-name {
     font-size: 16px;
+  }
+
+  .brand-logo {
+    width: 42px;
+    height: 42px;
   }
 
   .menu-toggle {
@@ -452,18 +569,22 @@ outline-offset: 2px;
     display: none;
     grid-column: 1 / -1;
     grid-row: 2;
+    width: 100%;
+    min-width: 0;
     gap: 12px;
     padding: 4px 0 2px;
   }
 
   .navbar-menu.is-open {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
   }
 
   .navbar nav {
-    flex-direction: column;
-    align-items: stretch;
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
     gap: 4px;
   }
 
@@ -478,10 +599,48 @@ outline-offset: 2px;
   .profile-dropdown {
     right: auto;
     left: 0;
+    width: min(230px, calc(100vw - 28px));
   }
 
   .navbar-menu .search {
-    width: 100%;
+    width: auto;
+    flex: 1 1 auto;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .search input {
+    padding: 0 12px;
+    font-size: 14px;
+  }
+
+  .search button {
+    width: 46px;
+    flex-basis: 46px;
+  }
+}
+
+@media (max-width: 400px) {
+  .navbar {
+    padding-inline: 10px;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand-name {
+    font-size: 14px;
+  }
+
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-toggle {
+    width: 38px;
+    height: 38px;
   }
 }
 </style>

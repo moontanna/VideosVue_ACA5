@@ -46,6 +46,7 @@ function iniciarSesion() {
     localStorage.setItem('cuenta-iniciada', 'true')
     localStorage.setItem('datos-cuenta', JSON.stringify(datos.value))
     tieneCuenta.value = true
+    window.dispatchEvent(new Event('cuenta-actualizada'))
 }
 
 function cerrarSesion() {
@@ -53,6 +54,8 @@ function cerrarSesion() {
     tieneCuenta.value = false
     email.value = ''
     password.value = ''
+    localStorage.removeItem('datos-cuenta')
+    window.dispatchEvent(new Event('cuenta-actualizada'))
 }
 </script>
 

@@ -7,6 +7,9 @@ import GamePlay from '../components/GamePlay.vue';
 import videocard from '../components/Videocard.vue';
 import Eventos from '../components/Eventos.vue';
 import Cuenta from '../components/Cuenta.vue';
+import Membresia from '../components/membreasia.vue';
+import Tienda from '../components/Tienda.vue';
+import Juegos from '../components/juegos.vue';
 
 
 const routes = [
@@ -14,6 +17,9 @@ const routes = [
   { path: '/soporte', name: 'soporte', component: IndecisionView },
   { path: '/eventos', name: 'eventos', component: Eventos },
   { path: '/cuenta', name: 'cuenta', component: Cuenta },
+  { path: '/membresia', name: 'membresia', component: Membresia },
+  { path: '/tienda', name: 'tienda', component: Tienda },
+  { path: '/juegos/:titulo', name: 'juegos', component: Juegos },
   { path: '/indecision', name: 'indecision', component: IndecisionView },
   { path: '/categorybar', name: 'categorybar', component: categorybar },
   { path: '/navbar', name: 'navbar', component: navbar },

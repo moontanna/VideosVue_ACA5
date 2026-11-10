@@ -5,7 +5,9 @@ import { RouterView } from 'vue-router'
 
 <template>
   <NavBar />
-  <RouterView />
+  <div class="content-shell">
+    <RouterView />
+  </div>
   <RouterLink
     class="floating-support"
     :to="{ name: 'soporte' }"
@@ -17,6 +19,38 @@ import { RouterView } from 'vue-router'
 </template>
 
 <style scoped>
+.content-shell {
+  min-width: 0;
+}
+
+@media (min-width: 681px) {
+  .content-shell {
+    width: calc(100% - 240px);
+    margin-left: 240px;
+  }
+
+  .content-shell :deep(.feed) {
+    width: min(calc(100% - 48px), 1440px);
+    margin: 0 auto;
+  }
+
+  .content-shell :deep(.video-page) {
+    width: min(calc(100% - 48px), 1000px);
+    margin: 0 auto;
+  }
+
+  .content-shell :deep(.gp) {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .content-shell {
+    width: 100%;
+  }
+}
+
 .floating-support {
   position: fixed;
   right: 24px;

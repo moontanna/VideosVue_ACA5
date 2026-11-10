@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap');
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -11,8 +13,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --sans: 'Cinzel', Georgia, serif;
+  --heading: 'Cinzel', Georgia, serif;
   --heading-xl: clamp(30px, 4vw, 42px);
   --heading-lg: clamp(22px, 2.5vw, 28px);
   --heading-md: 17px;
@@ -62,6 +64,13 @@ body {
   background-position: center;
   background-attachment: fixed;
   background-size: cover;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 h1,

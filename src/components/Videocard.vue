@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { videos } from '../data/games.ts'
 
@@ -10,6 +10,7 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 const isDetail = computed(() => route.name === 'videocard')
+const activeMemberships = ref(readMemberships())
 
 const selectedVideo = computed(() => {
   if (props.video) return props.video
@@ -18,28 +19,59 @@ const selectedVideo = computed(() => {
 
 // Se usa directamente el link (que ya viene preparado en formato embed)
 const embedUrl = computed(() => selectedVideo.value?.link ?? '')
+const canWatch = computed(
+  () =>
+    !selectedVideo.value?.soloMembresia ||
+    activeMemberships.value.includes(selectedVideo.value.creador),
+)
+
+function updateMembership() {
+  activeMemberships.value = readMemberships()
+}
+
+function readMemberships(): string[] {
+  try {
+    const savedMemberships = JSON.parse(localStorage.getItem('membresias-activas') ?? '[]')
+    return Array.isArray(savedMemberships)
+      ? savedMemberships.filter((creator): creator is string => typeof creator === 'string')
+      : []
+  } catch {
+    return []
+  }
+}
 
 function openVideo() {
   if (props.video) {
     router.push({ name: 'videocard', params: { id: props.video.id } })
   }
 }
+
+function useFallbackImage(event: Event) {
+  const image = event.target as HTMLImageElement
+  if (image.src.endsWith('/logoPI_TW.png')) return
+  image.src = '/logoPI_TW.png'
+}
+
+onMounted(() => window.addEventListener('membresia-actualizada', updateMembership))
+onBeforeUnmount(() => window.removeEventListener('membresia-actualizada', updateMembership))
 </script>
 
 <template>
   <!-- Vista de Tarjeta en la Cuadrícula -->
   <article v-if="!isDetail" class="card" @click="openVideo">
     <div class="thumbnail-container">
-      <img :src="video?.img" :alt="video?.titulo" class="thumbnail-img" />
+      <img :src="video?.img" :alt="video?.titulo" class="thumbnail-img" @error="useFallbackImage" />
       <div class="play-overlay">
         <span class="play-icon" aria-hidden="true">▶</span>
       </div>
-      <span class="category-badge">{{ video?.categoria }}</span>
+      <span class="category-badge">
+        {{ video?.soloMembresia ? 'Solo membresía' : video?.categoria }}
+      </span>
     </div>
 
     <div class="info-container">
       <div class="channel-avatar">
-        <img :src="video?.img" :alt="video?.creador" />
+        <img :src="video?.img" :alt="video?.creador" @error="useFallbackImage" />
       </div>
       <div class="meta-info">
         <h3>{{ video?.titulo }}</h3>
@@ -50,11 +82,10 @@ function openVideo() {
 
   <!-- Vista de Detalle / Reproductor -->
   <main v-else-if="selectedVideo" class="video-page">
-    <RouterLink class="back-link" :to="{ name: 'home' }">← Volver a videos</RouterLink>
     <h1>{{ selectedVideo.titulo }}</h1>
     <p class="meta">{{ selectedVideo.creador }} · {{ selectedVideo.categoria }}</p>
 
-    <section v-if="selectedVideo.Membresia" class="player-section">
+    <section v-if="canWatch" class="player-section">
       <iframe
         :src="embedUrl"
         :title="`Video de ${selectedVideo.titulo}`"
@@ -66,7 +97,7 @@ function openVideo() {
     <section v-else class="membership-message">
       <h2>Este video requiere una membresía</h2>
       <p>Activa tu membresía para poder reproducir este contenido.</p>
-      <RouterLink :to="{ name: 'cuenta' }">Ver membresías</RouterLink>
+      <RouterLink :to="{ name: 'membresia' }">Ver membresías</RouterLink>
     </section>
   </main>
 
